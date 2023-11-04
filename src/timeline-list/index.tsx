@@ -50,19 +50,32 @@ export interface TimelineListProps {
    */
   initialTime?: TimelineProps['initialTime'];
 
-  /**
-   ***** MODIFIED *******************************
-   */
-  date: string;
-  setDate: (date: string) => void;
+  setter: (obj: object) => void;
 }
 
 const TimelineList = (props: TimelineListProps) => {
-  const {date, setDate, timelineProps, events, renderItem, showNowIndicator, scrollToFirst, scrollToNow, initialTime} = props;
-  const {updateSource, numberOfDays = 1, timelineLeftInset} = useContext(Context);
+  const { setter, timelineProps, events, renderItem, showNowIndicator, scrollToFirst, scrollToNow, initialTime} = props;
+  const {date: dateFromContext, updateSource, setDate, numberOfDays = 1, timelineLeftInset} = useContext(Context);
   const listRef = useRef<any>();
   const prevDate = useRef(date);
   const [timelineOffset, setTimelineOffset] = useState();
+
+  const hasUsedSetter = useRef(false)
+  const [date, setManualDate] = useState(dateFromContext)
+
+  useEffect(() => {
+    if (!hasUsedSetter.current) {
+      setter({
+        updateDate: manualDateUpdate
+      })
+    }
+  }, [setter])
+
+
+  const manualDateUpdate = (newDate: string) => {
+    setManualDate(newDate);
+  }
+  
 
   const {pages, pagesRef, resetPages, resetPagesDebounce, scrollToPageDebounce, shouldResetPages, isOutOfRange} =
     useTimelinePages({date, listRef, numberOfDays});
@@ -79,6 +92,8 @@ const TimelineList = (props: TimelineListProps) => {
     }
     prevDate.current = date;
   }, [updateSource]);
+
+  
 
   const initialOffset = useMemo(() =>
   constants.isAndroidRTL ? constants.screenWidth * (PAGES_COUNT - INITIAL_PAGE - 1) : constants.screenWidth * INITIAL_PAGE, []);
