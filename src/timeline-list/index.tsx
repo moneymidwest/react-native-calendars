@@ -61,7 +61,7 @@ const TimelineList = (props: TimelineListProps) => {
   const [timelineOffset, setTimelineOffset] = useState();
 
   const hasUsedSetter = useRef(false)
-  const [date, setManualDate] = useState(dateFromContext)
+  const [date, setManualDate] = useState(new Date().toISOString().split('T')[0])
 
   useEffect(() => {
     if (!hasUsedSetter.current) {
